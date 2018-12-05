@@ -141,7 +141,7 @@ define("game", ["require", "exports"], function (require, exports) {
     var wallPixelScale = new Vector3(wallWidth / wallBlocksX - 0.01, wallHeight / wallBlocksY - 0.01, 0.01);
     var swatchPrefix = "swatch-";
     // z = 0.1 or else clicks would not fire
-    var swatchScale = new Vector3(0.16, 0.16, 0.1);
+    var swatchScale = new Vector3(0.1, 0.16, 0.1);
     var swatchSelectedScale = new Vector3(0.18, 0.18, 0.1);
     var swatchZSelected = -0.07;
     var swatchZUnselected = -0.03;
@@ -315,7 +315,7 @@ define("game", ["require", "exports"], function (require, exports) {
         engine.addEntity(palette);
         var rowY = 0;
         var _loop_2 = function (i) {
-            var x = ((i % 12) + 1) / 5 - 0.55;
+            var x = ((i % 12) + 1) / 8 - 0.55;
             if (i % 6 === 0) {
                 rowY -= 0.17;
             }
@@ -342,31 +342,27 @@ define("game", ["require", "exports"], function (require, exports) {
     InitiateWall();
     InitiatePalette();
     function clickPixel(pix) {
+        var _this = this;
         pix.set(currentColor);
         log("setting color to pixel");
-    }
-    function clickSwatch(colorOption) {
-        // TODO inactivate all others
-        colorOption.get(Swatch).active = true;
-        currentColor = colorOption.get(Material);
-        log("clicked color in the palette");
-    }
-    ///// Connect to the REST API
-    var apiUrl = "http://127.0.0.1:7753";
-    var headers = {
-        Accept: "application/json",
-        "Content-Type": "application/json"
-    };
-    function synchronizeWall() {
-        var _this = this;
-        var url = apiUrl + "/api/pixels";
+        var x = pix.get(Pixel).x;
+        var y = pix.get(Pixel).y;
+        var color = currentColor.albedoColor.toHexString;
+        var url = apiUrl + "/pixel/?x=" + x + "&y=" + y;
+        var method = "POST";
+        var headers = { "Content-Type": "application/json" };
+        var body = JSON.stringify("color");
         executeTask(function () { return __awaiter(_this, void 0, void 0, function () {
             var e_2, _a, response, json, _b, _c, pixel, _d;
             return __generator(this, function (_e) {
                 switch (_e.label) {
                     case 0:
                         _e.trys.push([0, 3, , 4]);
-                        return [4 /*yield*/, fetch(url)];
+                        return [4 /*yield*/, fetch(url, {
+                                headers: headers,
+                                method: method,
+                                body: body
+                            })];
                     case 1:
                         response = _e.sent();
                         return [4 /*yield*/, response.json()];
@@ -384,6 +380,56 @@ define("game", ["require", "exports"], function (require, exports) {
                                 if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
                             }
                             finally { if (e_2) throw e_2.error; }
+                        }
+                        return [3 /*break*/, 4];
+                    case 3:
+                        _d = _e.sent();
+                        log("error sending pixel change");
+                        return [3 /*break*/, 4];
+                    case 4: return [2 /*return*/];
+                }
+            });
+        }); });
+    }
+    function clickSwatch(colorOption) {
+        // TODO inactivate all others
+        colorOption.get(Swatch).active = true;
+        currentColor = colorOption.get(Material);
+        log("clicked color in the palette");
+    }
+    ///// Connect to the REST API
+    var apiUrl = "http://127.0.0.1:7753";
+    var headers = {
+        Accept: "application/json",
+        "Content-Type": "application/json"
+    };
+    function synchronizeWall() {
+        var _this = this;
+        var url = apiUrl + "/api/pixels";
+        executeTask(function () { return __awaiter(_this, void 0, void 0, function () {
+            var e_3, _a, response, json, _b, _c, pixel, _d;
+            return __generator(this, function (_e) {
+                switch (_e.label) {
+                    case 0:
+                        _e.trys.push([0, 3, , 4]);
+                        return [4 /*yield*/, fetch(url)];
+                    case 1:
+                        response = _e.sent();
+                        return [4 /*yield*/, response.json()];
+                    case 2:
+                        json = _e.sent();
+                        log(json);
+                        try {
+                            for (_b = __values(pixels.entities), _c = _b.next(); !_c.done; _c = _b.next()) {
+                                pixel = _c.value;
+                            }
+                        }
+                        catch (e_3_1) { e_3 = { error: e_3_1 }; }
+                        finally {
+                            try {
+                                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+                            }
+                            finally { if (e_3) throw e_3.error; }
                         }
                         return [3 /*break*/, 4];
                     case 3:

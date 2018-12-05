@@ -127,6 +127,7 @@ pixelRouter.put("/pixel", bodyParser.json(), function(
       res.status(200).json(pixel);
     });
   });
+  console.log("new pixel: " + x, " ", y, " color: " , color)
 });
 
 //

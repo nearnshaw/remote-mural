@@ -75,7 +75,7 @@ const wallPixelScale: Vector3 = new Vector3(wallWidth / wallBlocksX - 0.01, wall
 const swatchPrefix = "swatch-";
 
 // z = 0.1 or else clicks would not fire
-const swatchScale = new Vector3(0.16, 0.16,  0.1)
+const swatchScale = new Vector3(0.1, 0.16,  0.1)
 const swatchSelectedScale = new Vector3(0.18, 0.18, 0.1)
 
 const swatchZSelected = -0.07
@@ -281,7 +281,7 @@ function InitiatePalette(){
   engine.addEntity(palette)
   let rowY = 0
   for (let i = 0; i< swatchColors.length; i++){
-    const x = ((i % 12) + 1) / 5 - 0.55;
+    const x = ((i % 12) + 1) / 8 - 0.55;
     if (i % 6 === 0) {
       rowY -= 0.17;
     }
@@ -315,6 +315,34 @@ InitiatePalette()
 function clickPixel(pix: Entity){
   pix.set(currentColor)
   log("setting color to pixel")
+
+  let x = pix.get(Pixel).x
+  let y = pix.get(Pixel).y
+  let color = currentColor.albedoColor.toHexString
+
+
+  let url = `${apiUrl}/pixel/?x=${x}&y=${y}`
+  let method = "POST";
+  let headers = { "Content-Type": "application/json" }
+  let body =  JSON.stringify("color")
+
+
+  executeTask(async () => {
+    try {
+      let response = await fetch(url, {
+        headers: headers,
+        method: method,
+        body: body})
+      let json = await response.json()
+      log(json)
+      for (let pixel of pixels.entities){
+      }
+      
+    } catch {
+      log("error sending pixel change")
+    }
+
+   })
  
 }
 
