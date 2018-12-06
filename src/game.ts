@@ -3,11 +3,11 @@
 export class Pixel {
   x: number
   y: number
-  color: string
-  constructor(x : number = 0, y : number = 0, color: string){
+  //color: string
+  constructor(x : number = 0, y : number = 0){
     this.x = x 
     this.y = y 
-    this.color = color 
+    //this.color = color 
   }
 }
 
@@ -18,13 +18,13 @@ const pixels = engine.getComponentGroup(Pixel)
 export class Swatch {
   x: number
   y: number
-  color: Color3
+  //color: Color3
   active: boolean
   size: number
-  constructor(x : number = 0, y : number = 0, color: Color3){
+  constructor(x : number = 0, y : number = 0){
     this.x = x 
     this.y = y 
-    this.color = color 
+    //this.color = color 
     this.active = false
   }
 }
@@ -94,6 +94,8 @@ https://www.patternfly.org/styles/color-palette/
 
 */
 const blankColor = "#0099CC"
+
+const paletteColor =  "#666666"
 
 const swatchColors = [
   blankColor,
@@ -170,7 +172,7 @@ const swatchColors = [
   // "#8b0000",
   // "#470000",
   // "#2c0000",
-  "#666666"    // Palette material
+  paletteColor
 ]
 
 
@@ -186,7 +188,7 @@ There are two materials used for the wall:
 
 */
 
-let wallPixelColorMaterial = []
+let wallPixelColorMaterial = {}
 
 for (let i = 0; i< swatchColors.length; i++){
   let material = new Material()
@@ -194,8 +196,9 @@ for (let i = 0; i< swatchColors.length; i++){
   material.ambientColor = color
   material.albedoColor = color
   material.reflectivityColor = color
-  wallPixelColorMaterial.push(material)
+  wallPixelColorMaterial[swatchColors[i]] = material  
 }
+
 
 let wallPixelTransparentMaterial = new Material()
 wallPixelTransparentMaterial.alpha = 0.1
@@ -255,7 +258,7 @@ function InitiateWall(){
       pix.set(new Transform())
       pix.get(Transform).position.set(xPos, yPos, wallPixelZ)
       pix.get(Transform).scale = (wallPixelScale)
-      pix.set(new Pixel(xIndex, yIndex, blankColor))
+      pix.set(new Pixel(xIndex, yIndex))
 
       pix.set(wallPixelTransparentMaterial)
       pix.set(new PlaneShape())
@@ -264,11 +267,10 @@ function InitiateWall(){
       }))
 
       engine.addEntity(pix)
-
     }
   }
-
 }
+
 
 function InitiatePalette(){
   let palette = new Entity()
@@ -277,7 +279,7 @@ function InitiatePalette(){
   palette.get(Transform).position.set(8.5,1,3)
   palette.get(Transform).rotation.eulerAngles = new Vector3(30,50,0)
   palette.set(new PlaneShape())
-  palette.set(wallPixelColorMaterial[wallPixelColorMaterial.length-1])
+  palette.set(wallPixelColorMaterial[paletteColor])
   engine.addEntity(palette)
   let rowY = 0
   for (let i = 0; i< swatchColors.length; i++){
@@ -292,9 +294,10 @@ function InitiatePalette(){
     colorOption.set(new Transform())
     colorOption.get(Transform).position.set(x, y, swatchZUnselected)
     colorOption.get(Transform).scale = (swatchScale)
-    colorOption.set(new Swatch(x, y, wallPixelColorMaterial[i].albedoColor ))
+    colorOption.set(new Swatch(x, y))
     //log(wallPixelColorMaterial[i].albedoColor)
-    colorOption.set(wallPixelColorMaterial[i])
+    let col = swatchColors[i]
+    colorOption.set(wallPixelColorMaterial[col])
     colorOption.set(new PlaneShape())
     colorOption.set(new OnClick(e=> {
       clickSwatch(colorOption)
@@ -363,6 +366,9 @@ const headers = {
   "Content-Type": "application/json"
 };
 
+
+//synchronizeWall()
+
 function synchronizeWall() {
 
   let url = `${apiUrl}/api/pixels`
@@ -373,7 +379,17 @@ function synchronizeWall() {
       let json = await response.json()
       log(json)
       for (let pixel of pixels.entities){
-
+        let pixelData = pixel.get(Pixel)
+        for (let i = 0; i < json.length; i++){
+          //log("x: " + json[i].x + " y: " + json[i].y )
+          if(json[i].x == pixelData.x && 
+             json[i].y == pixelData.y){
+               let color = json[i].color
+               let material = wallPixelColorMaterial[color]
+               pixel.set(material)
+               break
+          } 
+        }
 
       }
       

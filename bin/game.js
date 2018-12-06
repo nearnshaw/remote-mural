@@ -61,33 +61,34 @@ define("game", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
     var Pixel = /** @class */ (function () {
-        function Pixel(x, y, color) {
+        //color: string
+        function Pixel(x, y) {
             if (x === void 0) { x = 0; }
             if (y === void 0) { y = 0; }
             this.x = x;
             this.y = y;
-            this.color = color;
+            //this.color = color 
         }
         Pixel = __decorate([
             Component('pixel'),
-            __metadata("design:paramtypes", [Number, Number, String])
+            __metadata("design:paramtypes", [Number, Number])
         ], Pixel);
         return Pixel;
     }());
     exports.Pixel = Pixel;
     var pixels = engine.getComponentGroup(Pixel);
     var Swatch = /** @class */ (function () {
-        function Swatch(x, y, color) {
+        function Swatch(x, y) {
             if (x === void 0) { x = 0; }
             if (y === void 0) { y = 0; }
             this.x = x;
             this.y = y;
-            this.color = color;
+            //this.color = color 
             this.active = false;
         }
         Swatch = __decorate([
             Component('swatch'),
-            __metadata("design:paramtypes", [Number, Number, Color3])
+            __metadata("design:paramtypes", [Number, Number])
         ], Swatch);
         return Swatch;
     }());
@@ -157,6 +158,7 @@ define("game", ["require", "exports"], function (require, exports) {
     
     */
     var blankColor = "#0099CC";
+    var paletteColor = "#666666";
     var swatchColors = [
         blankColor,
         "#fbdebf",
@@ -232,7 +234,7 @@ define("game", ["require", "exports"], function (require, exports) {
         // "#8b0000",
         // "#470000",
         // "#2c0000",
-        "#666666" // Palette material
+        paletteColor
     ];
     ////// SCENERY
     /*
@@ -242,14 +244,14 @@ define("game", ["require", "exports"], function (require, exports) {
     + wallPixelTransparentMaterial - transparent material used for no color
     
     */
-    var wallPixelColorMaterial = [];
+    var wallPixelColorMaterial = {};
     for (var i = 0; i < swatchColors.length; i++) {
         var material = new Material();
         var color = Color3.FromHexString(swatchColors[i]);
         material.ambientColor = color;
         material.albedoColor = color;
         material.reflectivityColor = color;
-        wallPixelColorMaterial.push(material);
+        wallPixelColorMaterial[swatchColors[i]] = material;
     }
     var wallPixelTransparentMaterial = new Material();
     wallPixelTransparentMaterial.alpha = 0.1;
@@ -291,7 +293,7 @@ define("game", ["require", "exports"], function (require, exports) {
                 pix.set(new Transform());
                 pix.get(Transform).position.set(xPos, yPos, wallPixelZ);
                 pix.get(Transform).scale = (wallPixelScale);
-                pix.set(new Pixel(xIndex, yIndex, blankColor));
+                pix.set(new Pixel(xIndex, yIndex));
                 pix.set(wallPixelTransparentMaterial);
                 pix.set(new PlaneShape());
                 pix.set(new OnClick(function (e) {
@@ -311,7 +313,7 @@ define("game", ["require", "exports"], function (require, exports) {
         palette.get(Transform).position.set(8.5, 1, 3);
         palette.get(Transform).rotation.eulerAngles = new Vector3(30, 50, 0);
         palette.set(new PlaneShape());
-        palette.set(wallPixelColorMaterial[wallPixelColorMaterial.length - 1]);
+        palette.set(wallPixelColorMaterial[paletteColor]);
         engine.addEntity(palette);
         var rowY = 0;
         var _loop_2 = function (i) {
@@ -325,9 +327,10 @@ define("game", ["require", "exports"], function (require, exports) {
             colorOption.set(new Transform());
             colorOption.get(Transform).position.set(x, y, swatchZUnselected);
             colorOption.get(Transform).scale = (swatchScale);
-            colorOption.set(new Swatch(x, y, wallPixelColorMaterial[i].albedoColor));
+            colorOption.set(new Swatch(x, y));
             //log(wallPixelColorMaterial[i].albedoColor)
-            colorOption.set(wallPixelColorMaterial[i]);
+            var col = swatchColors[i];
+            colorOption.set(wallPixelColorMaterial[col]);
             colorOption.set(new PlaneShape());
             colorOption.set(new OnClick(function (e) {
                 clickSwatch(colorOption);
@@ -403,11 +406,12 @@ define("game", ["require", "exports"], function (require, exports) {
         Accept: "application/json",
         "Content-Type": "application/json"
     };
+    //synchronizeWall()
     function synchronizeWall() {
         var _this = this;
         var url = apiUrl + "/api/pixels";
         executeTask(function () { return __awaiter(_this, void 0, void 0, function () {
-            var e_3, _a, response, json, _b, _c, pixel, _d;
+            var e_3, _a, response, json, _b, _c, pixel, pixelData, i, color, material, _d;
             return __generator(this, function (_e) {
                 switch (_e.label) {
                     case 0:
@@ -422,6 +426,17 @@ define("game", ["require", "exports"], function (require, exports) {
                         try {
                             for (_b = __values(pixels.entities), _c = _b.next(); !_c.done; _c = _b.next()) {
                                 pixel = _c.value;
+                                pixelData = pixel.get(Pixel);
+                                for (i = 0; i < json.length; i++) {
+                                    //log("x: " + json[i].x + " y: " + json[i].y )
+                                    if (json[i].x == pixelData.x &&
+                                        json[i].y == pixelData.y) {
+                                        color = json[i].color;
+                                        material = wallPixelColorMaterial[color];
+                                        pixel.set(material);
+                                        break;
+                                    }
+                                }
                             }
                         }
                         catch (e_3_1) { e_3 = { error: e_3_1 }; }
