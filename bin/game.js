@@ -60,6 +60,9 @@ var __values = (this && this.__values) || function (o) {
 define("game", ["require", "exports"], function (require, exports) {
     "use strict";
     Object.defineProperty(exports, "__esModule", { value: true });
+    // how often to refresh scene, in seconds
+    var refreshInterval = 1;
+    var refreshTimer = refreshInterval;
     var Pixel = /** @class */ (function () {
         //color: string
         function Pixel(x, y) {
@@ -130,6 +133,20 @@ define("game", ["require", "exports"], function (require, exports) {
     exports.GrowSwatches = GrowSwatches;
     // Add system to engine
     engine.addSystem(new GrowSwatches());
+    var CheckServer = /** @class */ (function () {
+        function CheckServer() {
+        }
+        CheckServer.prototype.update = function (dt) {
+            refreshTimer -= dt;
+            if (refreshTimer < 0) {
+                refreshTimer = refreshInterval;
+                getFromServer();
+            }
+        };
+        return CheckServer;
+    }());
+    exports.CheckServer = CheckServer;
+    engine.addSystem(new CheckServer());
     ////////  PARAMETERS
     var wallBlocksX = 21;
     var wallBlocksY = 6;
@@ -406,8 +423,8 @@ define("game", ["require", "exports"], function (require, exports) {
         Accept: "application/json",
         "Content-Type": "application/json"
     };
-    //synchronizeWall()
-    function synchronizeWall() {
+    getFromServer();
+    function getFromServer() {
         var _this = this;
         var url = apiUrl + "/api/pixels";
         executeTask(function () { return __awaiter(_this, void 0, void 0, function () {
@@ -419,11 +436,13 @@ define("game", ["require", "exports"], function (require, exports) {
                         return [4 /*yield*/, fetch(url)];
                     case 1:
                         response = _e.sent();
-                        return [4 /*yield*/, response.json()];
+                        return [4 /*yield*/, response.json()
+                            //log(json)
+                        ];
                     case 2:
                         json = _e.sent();
-                        log(json);
                         try {
+                            //log(json)
                             for (_b = __values(pixels.entities), _c = _b.next(); !_c.done; _c = _b.next()) {
                                 pixel = _c.value;
                                 pixelData = pixel.get(Pixel);
@@ -432,9 +451,12 @@ define("game", ["require", "exports"], function (require, exports) {
                                     if (json[i].x == pixelData.x &&
                                         json[i].y == pixelData.y) {
                                         color = json[i].color;
-                                        material = wallPixelColorMaterial[color];
-                                        pixel.set(material);
-                                        break;
+                                        log(color);
+                                        if (wallPixelColorMaterial[color]) {
+                                            material = wallPixelColorMaterial[color];
+                                            pixel.set(material);
+                                            break;
+                                        }
                                     }
                                 }
                             }

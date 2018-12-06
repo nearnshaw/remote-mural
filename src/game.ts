@@ -1,4 +1,9 @@
 
+// how often to refresh scene, in seconds
+const refreshInterval: number = 1
+let refreshTimer: number = refreshInterval
+
+
 @Component('pixel')
 export class Pixel {
   x: number
@@ -58,6 +63,20 @@ export class GrowSwatches implements ISystem {
 
 // Add system to engine
 engine.addSystem(new GrowSwatches())
+
+export class CheckServer implements ISystem {
+  update(dt:number){
+    refreshTimer -= dt
+    if (refreshTimer <0){
+      refreshTimer = refreshInterval
+      getFromServer()
+    }
+  }
+
+}
+engine.addSystem(new CheckServer())
+
+
 
 ////////  PARAMETERS
 
@@ -367,9 +386,9 @@ const headers = {
 };
 
 
-//synchronizeWall()
+getFromServer()
 
-function synchronizeWall() {
+function getFromServer() {
 
   let url = `${apiUrl}/api/pixels`
 
@@ -377,7 +396,7 @@ function synchronizeWall() {
     try {
       let response = await fetch(url)
       let json = await response.json()
-      log(json)
+      //log(json)
       for (let pixel of pixels.entities){
         let pixelData = pixel.get(Pixel)
         for (let i = 0; i < json.length; i++){
@@ -385,9 +404,12 @@ function synchronizeWall() {
           if(json[i].x == pixelData.x && 
              json[i].y == pixelData.y){
                let color = json[i].color
-               let material = wallPixelColorMaterial[color]
-               pixel.set(material)
-               break
+               log(color)
+               if (wallPixelColorMaterial[color]){
+                let material = wallPixelColorMaterial[color]
+                pixel.set(material)
+                break
+               }   
           } 
         }
 
