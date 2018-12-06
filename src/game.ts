@@ -195,6 +195,7 @@ const swatchColors = [
 ]
 
 
+let activePixels = []
 
 
 ////// SCENERY
@@ -237,32 +238,6 @@ An [x] icon shows on the palette. This is that texture material.
 
 let transparentMaterial = new BasicMaterial()
 transparentMaterial.texture = "./textures/transparent-texture.png"
-
-
-// const wallPixelPositions: IColorVec3HashTable = {};
-// const wallPixelColorsInit: IPixelHashTable = {};
-
-// /*
-
-// IPixelHashTable is used like this:
-
-// table["one"] = "two";
-
-// */
-// interface IPixelHashTable {
-//   [key: string]: string;
-// }
-
-// /*
-
-// IColorVec3HashTable is used for Vec3:
-// table["one"] = {x: 0, y: 0, z: 0};
-
-// */
-// interface IColorVec3HashTable {
-//   [key: string]: Vector3Component;
-// }
-
 
 
 
@@ -325,9 +300,8 @@ function InitiatePalette(){
     engine.addEntity(colorOption)
 
   }
-
-  // add transparent color
-
+  // TODO align pixels well
+  // TODO add transparent color
 }
 
 
@@ -340,14 +314,12 @@ function clickPixel(pix: Entity){
 
   let x = pix.get(Pixel).x
   let y = pix.get(Pixel).y
-  let color = currentColor.albedoColor.toHexString
+  let color = currentColor.albedoColor.toHexString()
 
-
-  let url = `${apiUrl}/pixel/?x=${x}&y=${y}`
+  let url = `${apiUrl}/api/pixels/pixel`
   let method = "POST";
   let headers = { "Content-Type": "application/json" }
-  let body =  JSON.stringify("color")
-
+  let body =  JSON.stringify({"x": x, "y": y, "color": color})
 
   executeTask(async () => {
     try {
@@ -356,7 +328,6 @@ function clickPixel(pix: Entity){
         method: method,
         body: body})
       let json = await response.json()
-      log(json)
       for (let pixel of pixels.entities){
       }
       
@@ -365,10 +336,11 @@ function clickPixel(pix: Entity){
     }
 
    })
- 
+   getFromServer()
 }
 
 function clickSwatch(colorOption: Entity){
+  // TODO activate proper color
   // TODO inactivate all others
   colorOption.get(Swatch).active = true
   currentColor = colorOption.get(Material)
@@ -386,7 +358,7 @@ const headers = {
 };
 
 
-getFromServer()
+//getFromServer()
 
 function getFromServer() {
 
@@ -399,18 +371,23 @@ function getFromServer() {
       //log(json)
       for (let pixel of pixels.entities){
         let pixelData = pixel.get(Pixel)
+        let isColorSet = false
         for (let i = 0; i < json.length; i++){
           //log("x: " + json[i].x + " y: " + json[i].y )
           if(json[i].x == pixelData.x && 
              json[i].y == pixelData.y){
                let color = json[i].color
-               log(color)
+               //workaround while there are unsupported colors
                if (wallPixelColorMaterial[color]){
                 let material = wallPixelColorMaterial[color]
                 pixel.set(material)
+                isColorSet = true
                 break
                }   
           } 
+        }
+        if (!isColorSet){
+          pixel.set(wallPixelTransparentMaterial)
         }
 
       }
@@ -420,32 +397,4 @@ function getFromServer() {
     }
 
    })
-
-  // GET /api/pixels
-  // fetch(apiUrl)
-  //   .then(res => res.json())
-  //   .then(function(res) {
-  //     const { wallBlockColors } = scene.state;
-
-  //     Object.keys(wallBlockColors).forEach(function(blockKey) {
-  //       const isColorSet = res.some((pixel: IDBPixel) => {
-  //         const { x, y, color } = pixel;
-  //         const pixelKey = `${x}-${y}`;
-
-  //         if (pixelKey === blockKey) {
-  //           wallBlockColors[blockKey] = color;
-  //           return true;
-  //         }
-
-  //         return false;
-  //       });
-
-  //       if (isColorSet === false) {
-  //         wallBlockColors[blockKey] = "transparent";
-  //       }
-  //     });
-
-  //     scene.setState({ wallBlockColors });
-  //   })
-
 }

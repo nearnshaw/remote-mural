@@ -82,13 +82,16 @@ pixelRouter.get("/pixel", function(
 
 //
 // put a new pixel which does not exist in the db yet
-// PUT /api/pixels/pixel
+// or update a pixel that already exists
+// POST /api/pixels/pixel
 //
-pixelRouter.put("/pixel", bodyParser.json(), function(
+pixelRouter.post("/pixel", bodyParser.json(), function(
   req: express.Request,
   res: express.Response
 ) {
   let { x, y, color } = req.body;
+
+  console.log(x, y, color)
 
   if (isNaN(x) === true || isNaN(y) === true) {
     const msg = `x or y were not a number, x: ${x}, y: ${y}`;
@@ -112,22 +115,30 @@ pixelRouter.put("/pixel", bodyParser.json(), function(
     }
 
     if (pixel !== null) {
-      const msg = `cannot put a pixel where it already exists, try post, x: ${x}, y: ${y}`;
-      console.error(msg);
-      return res.status(400).json({ error: msg });
-    }
-
-    Pixel.create({ x, y, color }, function(err: Error, pixel: Document) {
-      if (err !== undefined && err !== null) {
-        const msg = `error while creating pixel, x: ${x}, y: ${y}, color: ${color}`;
-        console.error(msg, err);
-        return res.status(500).json({ error: msg });
-      }
-
-      res.status(200).json(pixel);
-    });
+        pixel.set("color", color)
+        console.log(`changed color of existing pixel`);
+        pixel.save(function(err: Error) {
+          if (err !== undefined && err !== null) {
+            const msg = `error while saving one pixel for POST, color: ${color}`;
+            console.error(msg, err);
+            return res.status(500).json({ error: msg });
+          }
+        
+          res.status(200).json(pixel);
+        });
+     }
+     else {
+      Pixel.create({ x, y, color }, function(err: Error, pixel: Document) {
+        if (err !== undefined && err !== null) {
+          const msg = `error while creating pixel, x: ${x}, y: ${y}, color: ${color}`;
+          console.error(msg, err);
+          return res.status(500).json({ error: msg });
+        }
+        console.log("new pixel: " + x, " ", y, " color: " , color)
+        res.status(200).json(pixel);
+      });
+     }
   });
-  console.log("new pixel: " + x, " ", y, " color: " , color)
 });
 
 //

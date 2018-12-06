@@ -253,6 +253,7 @@ define("game", ["require", "exports"], function (require, exports) {
         // "#2c0000",
         paletteColor
     ];
+    var activePixels = [];
     ////// SCENERY
     /*
     
@@ -285,22 +286,6 @@ define("game", ["require", "exports"], function (require, exports) {
     */
     var transparentMaterial = new BasicMaterial();
     transparentMaterial.texture = "./textures/transparent-texture.png";
-    // const wallPixelPositions: IColorVec3HashTable = {};
-    // const wallPixelColorsInit: IPixelHashTable = {};
-    // /*
-    // IPixelHashTable is used like this:
-    // table["one"] = "two";
-    // */
-    // interface IPixelHashTable {
-    //   [key: string]: string;
-    // }
-    // /*
-    // IColorVec3HashTable is used for Vec3:
-    // table["one"] = {x: 0, y: 0, z: 0};
-    // */
-    // interface IColorVec3HashTable {
-    //   [key: string]: Vector3Component;
-    // }
     function InitiateWall() {
         for (var xIndex = 0; xIndex < wallBlocksX; xIndex += 1) {
             var _loop_1 = function (yIndex) {
@@ -357,7 +342,8 @@ define("game", ["require", "exports"], function (require, exports) {
         for (var i = 0; i < swatchColors.length; i++) {
             _loop_2(i);
         }
-        // add transparent color
+        // TODO align pixels well
+        // TODO add transparent color
     }
     InitiateWall();
     InitiatePalette();
@@ -367,11 +353,11 @@ define("game", ["require", "exports"], function (require, exports) {
         log("setting color to pixel");
         var x = pix.get(Pixel).x;
         var y = pix.get(Pixel).y;
-        var color = currentColor.albedoColor.toHexString;
-        var url = apiUrl + "/pixel/?x=" + x + "&y=" + y;
+        var color = currentColor.albedoColor.toHexString();
+        var url = apiUrl + "/api/pixels/pixel";
         var method = "POST";
         var headers = { "Content-Type": "application/json" };
-        var body = JSON.stringify("color");
+        var body = JSON.stringify({ "x": x, "y": y, "color": color });
         executeTask(function () { return __awaiter(_this, void 0, void 0, function () {
             var e_2, _a, response, json, _b, _c, pixel, _d;
             return __generator(this, function (_e) {
@@ -388,7 +374,6 @@ define("game", ["require", "exports"], function (require, exports) {
                         return [4 /*yield*/, response.json()];
                     case 2:
                         json = _e.sent();
-                        log(json);
                         try {
                             for (_b = __values(pixels.entities), _c = _b.next(); !_c.done; _c = _b.next()) {
                                 pixel = _c.value;
@@ -410,8 +395,10 @@ define("game", ["require", "exports"], function (require, exports) {
                 }
             });
         }); });
+        getFromServer();
     }
     function clickSwatch(colorOption) {
+        // TODO activate proper color
         // TODO inactivate all others
         colorOption.get(Swatch).active = true;
         currentColor = colorOption.get(Material);
@@ -423,12 +410,12 @@ define("game", ["require", "exports"], function (require, exports) {
         Accept: "application/json",
         "Content-Type": "application/json"
     };
-    getFromServer();
+    //getFromServer()
     function getFromServer() {
         var _this = this;
         var url = apiUrl + "/api/pixels";
         executeTask(function () { return __awaiter(_this, void 0, void 0, function () {
-            var e_3, _a, response, json, _b, _c, pixel, pixelData, i, color, material, _d;
+            var e_3, _a, response, json, _b, _c, pixel, pixelData, isColorSet, i, color, material, _d;
             return __generator(this, function (_e) {
                 switch (_e.label) {
                     case 0:
@@ -446,18 +433,23 @@ define("game", ["require", "exports"], function (require, exports) {
                             for (_b = __values(pixels.entities), _c = _b.next(); !_c.done; _c = _b.next()) {
                                 pixel = _c.value;
                                 pixelData = pixel.get(Pixel);
+                                isColorSet = false;
                                 for (i = 0; i < json.length; i++) {
                                     //log("x: " + json[i].x + " y: " + json[i].y )
                                     if (json[i].x == pixelData.x &&
                                         json[i].y == pixelData.y) {
                                         color = json[i].color;
-                                        log(color);
+                                        //workaround while there are unsupported colors
                                         if (wallPixelColorMaterial[color]) {
                                             material = wallPixelColorMaterial[color];
                                             pixel.set(material);
+                                            isColorSet = true;
                                             break;
                                         }
                                     }
+                                }
+                                if (!isColorSet) {
+                                    pixel.set(wallPixelTransparentMaterial);
                                 }
                             }
                         }
@@ -477,26 +469,5 @@ define("game", ["require", "exports"], function (require, exports) {
                 }
             });
         }); });
-        // GET /api/pixels
-        // fetch(apiUrl)
-        //   .then(res => res.json())
-        //   .then(function(res) {
-        //     const { wallBlockColors } = scene.state;
-        //     Object.keys(wallBlockColors).forEach(function(blockKey) {
-        //       const isColorSet = res.some((pixel: IDBPixel) => {
-        //         const { x, y, color } = pixel;
-        //         const pixelKey = `${x}-${y}`;
-        //         if (pixelKey === blockKey) {
-        //           wallBlockColors[blockKey] = color;
-        //           return true;
-        //         }
-        //         return false;
-        //       });
-        //       if (isColorSet === false) {
-        //         wallBlockColors[blockKey] = "transparent";
-        //       }
-        //     });
-        //     scene.setState({ wallBlockColors });
-        //   })
     }
 });
