@@ -50,12 +50,12 @@ export class GrowSwatches implements ISystem {
       if (state.active && state.size < 1){
         state.size += dt * 2
         transform.scale = Vector3.Lerp(swatchScale, swatchSelectedScale, state.size)
-        transform.position.z = Scalar.Lerp(swatchZSelected, swatchZUnselected, state.size)
+        transform.position.z = Scalar.Lerp(swatchZUnselected, swatchZSelected, state.size)
       }
       else if (!state.active && state.size > 0){
         state.size -= dt * 2
         transform.scale = Vector3.Lerp(swatchScale, swatchSelectedScale, state.size)
-        transform.position.z = Scalar.Lerp(swatchZSelected, swatchZUnselected, state.size)
+        transform.position.z = Scalar.Lerp(swatchZUnselected, swatchZSelected, state.size)
       }
  
     }
@@ -95,10 +95,10 @@ const wallPixelScale: Vector3 = new Vector3(wallWidth / wallBlocksX - 0.01, wall
 const swatchPrefix = "swatch-";
 
 // z = 0.1 or else clicks would not fire
-const swatchScale = new Vector3(0.1, 0.16,  0.1)
+const swatchScale = new Vector3(0.16, 0.16,  0.1)
 const swatchSelectedScale = new Vector3(0.18, 0.18, 0.1)
 
-const swatchZSelected = -0.07
+const swatchZSelected = -0.06
 const swatchZUnselected = -0.03
 
 
@@ -268,24 +268,29 @@ function InitiateWall(){
 
 
 function InitiatePalette(){
+  let paletteContainer = new Entity()
+  paletteContainer.set(new Transform())
+  paletteContainer.get(Transform).position.set(8.5,1,3)
+  paletteContainer.get(Transform).rotation.eulerAngles = new Vector3(30,50,0)
+  engine.addEntity(paletteContainer)
+
   let palette = new Entity()
+  palette.setParent(paletteContainer)
   palette.set(new Transform())
   palette.get(Transform).scale.set(2.2,1,1)
-  palette.get(Transform).position.set(8.5,1,3)
-  palette.get(Transform).rotation.eulerAngles = new Vector3(30,50,0)
   palette.set(new PlaneShape())
   palette.set(wallPixelColorMaterial[paletteColor])
   engine.addEntity(palette)
   let rowY = 0
   for (let i = 0; i< swatchColors.length; i++){
-    const x = ((i % 12) + 1) / 8 - 0.55;
-    if (i % 6 === 0) {
+    const x = ((i % 12) + 1) / 6 - 1.08;
+    if (i % 12 === 0) {
       rowY -= 0.17;
     }
     const y = rowY + 0.5;
 
     let colorOption = new Entity()
-    colorOption.setParent(palette)
+    colorOption.setParent(paletteContainer)
     colorOption.set(new Transform())
     colorOption.get(Transform).position.set(x, y, swatchZUnselected)
     colorOption.get(Transform).scale = (swatchScale)
