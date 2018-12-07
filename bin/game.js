@@ -88,6 +88,7 @@ define("game", ["require", "exports"], function (require, exports) {
             this.y = y;
             //this.color = color 
             this.active = false;
+            this.size = 0;
         }
         Swatch = __decorate([
             Component('swatch'),
@@ -109,12 +110,12 @@ define("game", ["require", "exports"], function (require, exports) {
                     var state = swatch.get(Swatch);
                     var transform = swatch.get(Transform);
                     if (state.active && state.size < 1) {
-                        state.size += dt;
+                        state.size += dt * 2;
                         transform.scale = Vector3.Lerp(swatchScale, swatchSelectedScale, state.size);
                         transform.position.z = Scalar.Lerp(swatchZSelected, swatchZUnselected, state.size);
                     }
                     else if (!state.active && state.size > 0) {
-                        state.size -= dt;
+                        state.size -= dt * 2;
                         transform.scale = Vector3.Lerp(swatchScale, swatchSelectedScale, state.size);
                         transform.position.z = Scalar.Lerp(swatchZSelected, swatchZUnselected, state.size);
                     }
@@ -359,48 +360,50 @@ define("game", ["require", "exports"], function (require, exports) {
         var headers = { "Content-Type": "application/json" };
         var body = JSON.stringify({ "x": x, "y": y, "color": color });
         executeTask(function () { return __awaiter(_this, void 0, void 0, function () {
-            var e_2, _a, response, json, _b, _c, pixel, _d;
-            return __generator(this, function (_e) {
-                switch (_e.label) {
+            var response, _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
-                        _e.trys.push([0, 3, , 4]);
+                        _b.trys.push([0, 2, , 3]);
                         return [4 /*yield*/, fetch(url, {
                                 headers: headers,
                                 method: method,
                                 body: body
-                            })];
+                            })
+                            //let json = await response.json()
+                        ];
                     case 1:
-                        response = _e.sent();
-                        return [4 /*yield*/, response.json()];
+                        response = _b.sent();
+                        return [3 /*break*/, 3];
                     case 2:
-                        json = _e.sent();
-                        try {
-                            for (_b = __values(pixels.entities), _c = _b.next(); !_c.done; _c = _b.next()) {
-                                pixel = _c.value;
-                            }
-                        }
-                        catch (e_2_1) { e_2 = { error: e_2_1 }; }
-                        finally {
-                            try {
-                                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
-                            }
-                            finally { if (e_2) throw e_2.error; }
-                        }
-                        return [3 /*break*/, 4];
-                    case 3:
-                        _d = _e.sent();
+                        _a = _b.sent();
                         log("error sending pixel change");
-                        return [3 /*break*/, 4];
-                    case 4: return [2 /*return*/];
+                        return [3 /*break*/, 3];
+                    case 3: return [2 /*return*/];
                 }
             });
         }); });
         getFromServer();
     }
     function clickSwatch(colorOption) {
-        // TODO activate proper color
-        // TODO inactivate all others
+        var e_2, _a;
+        try {
+            // inactivate all options
+            for (var _b = __values(swatches.entities), _c = _b.next(); !_c.done; _c = _b.next()) {
+                var swatch = _c.value;
+                swatch.get(Swatch).active = false;
+            }
+        }
+        catch (e_2_1) { e_2 = { error: e_2_1 }; }
+        finally {
+            try {
+                if (_c && !_c.done && (_a = _b.return)) _a.call(_b);
+            }
+            finally { if (e_2) throw e_2.error; }
+        }
+        // activate clicked
         colorOption.get(Swatch).active = true;
+        // set painting color
         currentColor = colorOption.get(Material);
         log("clicked color in the palette");
     }

@@ -31,6 +31,7 @@ export class Swatch {
     this.y = y 
     //this.color = color 
     this.active = false
+    this.size = 0
   }
 }
 
@@ -47,12 +48,12 @@ export class GrowSwatches implements ISystem {
       let state = swatch.get(Swatch)
       let transform = swatch.get(Transform)
       if (state.active && state.size < 1){
-        state.size += dt
+        state.size += dt * 2
         transform.scale = Vector3.Lerp(swatchScale, swatchSelectedScale, state.size)
         transform.position.z = Scalar.Lerp(swatchZSelected, swatchZUnselected, state.size)
       }
       else if (!state.active && state.size > 0){
-        state.size -= dt
+        state.size -= dt * 2
         transform.scale = Vector3.Lerp(swatchScale, swatchSelectedScale, state.size)
         transform.position.z = Scalar.Lerp(swatchZSelected, swatchZUnselected, state.size)
       }
@@ -327,9 +328,7 @@ function clickPixel(pix: Entity){
         headers: headers,
         method: method,
         body: body})
-      let json = await response.json()
-      for (let pixel of pixels.entities){
-      }
+      //let json = await response.json()
       
     } catch {
       log("error sending pixel change")
@@ -340,13 +339,16 @@ function clickPixel(pix: Entity){
 }
 
 function clickSwatch(colorOption: Entity){
-  // TODO activate proper color
-  // TODO inactivate all others
+  // inactivate all options
+  for (let swatch of swatches.entities) {
+    swatch.get(Swatch).active = false
+  }
+  // activate clicked
   colorOption.get(Swatch).active = true
+  // set painting color
   currentColor = colorOption.get(Material)
   log("clicked color in the palette")
 }
-
 
 ///// Connect to the REST API
 
