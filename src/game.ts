@@ -376,7 +376,7 @@ function getFromServer() {
       let response = await fetch(url)
       let json = await response.json()
       //log(json)
-      for (let pixel of pixels.entities){
+       for (let pixel of pixels.entities){
         let pixelData = pixel.get(Pixel)
         let isColorSet = false
         for (let i = 0; i < json.length; i++){
@@ -398,7 +398,7 @@ function getFromServer() {
         }
 
       }
-      
+      log("got data from server")
     } catch {
       log("error getting all pixels")
     }

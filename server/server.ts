@@ -81,7 +81,7 @@ pixelRouter.get("/pixel", function(
 });
 
 //
-// put a new pixel which does not exist in the db yet
+// post a new pixel which does not exist in the db yet
 // or update a pixel that already exists
 // POST /api/pixels/pixel
 //
@@ -113,32 +113,43 @@ pixelRouter.post("/pixel", bodyParser.json(), function(
       console.error(msg, err);
       return res.status(500).json({ error: msg });
     }
-
+    // if pixel exists, update its color
     if (pixel !== null) {
         pixel.set("color", color)
-        console.log(`changed color of existing pixel`);
         pixel.save(function(err: Error) {
           if (err !== undefined && err !== null) {
             const msg = `error while saving one pixel for POST, color: ${color}`;
             console.error(msg, err);
             return res.status(500).json({ error: msg });
-          }
-        
+          }        
           res.status(200).json(pixel);
+          console.log(`changed color of existing pixel`);
         });
      }
-     else {
+     // if pixel doesn't exist in those coordinates, create it
+     else {  
       Pixel.create({ x, y, color }, function(err: Error, pixel: Document) {
         if (err !== undefined && err !== null) {
           const msg = `error while creating pixel, x: ${x}, y: ${y}, color: ${color}`;
           console.error(msg, err);
           return res.status(500).json({ error: msg });
         }
-        console.log("new pixel: " + x, " ", y, " color: " , color)
         res.status(200).json(pixel);
+        console.log("new pixel: " + x, " ", y, " color: " , color)
       });
      }
   });
+
+
+  // Pixel.find({}, function(err: Error, pixels: Document[]) {
+  //   if (err !== undefined && err !== null) {
+  //     const msg = "error getting all pixels";
+  //     console.error(msg, err);
+  //     return res.status(500).json({ error: msg });
+  //   }
+  //   //console.log(pixels)
+  //   //res.status(200).json(pixels);
+  //   })
 });
 
 //
@@ -179,7 +190,6 @@ pixelRouter.post("/pixel/:_id", bodyParser.json(), function(
         console.error(msg, err);
         return res.status(500).json({ error: msg });
       }
-
       res.status(200).json(pixel);
     });
   });

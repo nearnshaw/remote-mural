@@ -467,6 +467,7 @@ define("game", ["require", "exports"], function (require, exports) {
                             }
                             finally { if (e_3) throw e_3.error; }
                         }
+                        log("got data from server");
                         return [3 /*break*/, 4];
                     case 3:
                         _d = _e.sent();
