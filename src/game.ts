@@ -119,24 +119,24 @@ const paletteColor =  "#666666"
 
 const swatchColors = [
   blankColor,
-  "#fbdebf",
-  "#f7bd7f",
-  "#f39d3c",
-  "#ec7a08",
-  "#b35c00",
-  "#773d00",
+  "#FDBEBF",
+  "#F7BD7F",
+  "#F39D3C",
+  "#EC7A08",
+  "#B35C00",
+  "#773D00",
   // "#3b1f00",
-  "#fbeabc",
-  "#f9d67a",
-  "#f5c12e",
-  "#f0ab00",
-  "#b58100",
+  "#FBEABC",
+  "#F9D67A",
+  "#F5C12E",
+  "#F0AB00",
+  "#B58100",
   "#795600",
   // "#3d2c00",
-  "#e4f5bc",
-  "#c8eb79",
-  "#ace12e",
-  "#92d400",
+  "#E4F5BC",
+  "#C8EB79",
+  "#ACE12E",
+  "#92D400",
   // "#6ca100",
   // "#486b00",
   // // "#253600",
@@ -315,7 +315,7 @@ InitiateWall()
 InitiatePalette()
 
 function clickPixel(pix: Entity){
-  pix.set(currentColor)
+  //pix.set(currentColor)
   log("setting color to pixel")
 
   let x = pix.get(Pixel).x
@@ -376,27 +376,23 @@ function getFromServer() {
       let response = await fetch(url)
       let json = await response.json()
       //log(json)
-       for (let pixel of pixels.entities){
-        let pixelData = pixel.get(Pixel)
-        let isColorSet = false
-        for (let i = 0; i < json.length; i++){
-          //log("x: " + json[i].x + " y: " + json[i].y )
-          if(json[i].x == pixelData.x && 
-             json[i].y == pixelData.y){
-               let color = json[i].color
-               //workaround while there are unsupported colors
-               if (wallPixelColorMaterial[color]){
-                let material = wallPixelColorMaterial[color]
-                pixel.set(material)
-                isColorSet = true
-                break
-               }   
-          } 
+      for (let pixel of pixels.entities){
+        let x = pixel.get(Pixel).x
+        let y = pixel.get(Pixel).y
+        let pix = json.find((p)=> p.x === x && p.y === y )
+
+        if(pix){
+          if (wallPixelColorMaterial[pix.color]){
+            let material = wallPixelColorMaterial[pix.color]
+            pixel.set(material)
+           }
+           else{
+             log("pixel color" + pix.color + " not supported on " + x + " & " + y)
+           }   
         }
-        if (!isColorSet){
+        else {
           pixel.set(wallPixelTransparentMaterial)
         }
-
       }
       log("got data from server")
     } catch {

@@ -179,24 +179,24 @@ define("game", ["require", "exports"], function (require, exports) {
     var paletteColor = "#666666";
     var swatchColors = [
         blankColor,
-        "#fbdebf",
-        "#f7bd7f",
-        "#f39d3c",
-        "#ec7a08",
-        "#b35c00",
-        "#773d00",
+        "#FDBEBF",
+        "#F7BD7F",
+        "#F39D3C",
+        "#EC7A08",
+        "#B35C00",
+        "#773D00",
         // "#3b1f00",
-        "#fbeabc",
-        "#f9d67a",
-        "#f5c12e",
-        "#f0ab00",
-        "#b58100",
+        "#FBEABC",
+        "#F9D67A",
+        "#F5C12E",
+        "#F0AB00",
+        "#B58100",
         "#795600",
         // "#3d2c00",
-        "#e4f5bc",
-        "#c8eb79",
-        "#ace12e",
-        "#92d400",
+        "#E4F5BC",
+        "#C8EB79",
+        "#ACE12E",
+        "#92D400",
         // "#6ca100",
         // "#486b00",
         // // "#253600",
@@ -354,7 +354,7 @@ define("game", ["require", "exports"], function (require, exports) {
     InitiatePalette();
     function clickPixel(pix) {
         var _this = this;
-        pix.set(currentColor);
+        //pix.set(currentColor)
         log("setting color to pixel");
         var x = pix.get(Pixel).x;
         var y = pix.get(Pixel).y;
@@ -422,7 +422,7 @@ define("game", ["require", "exports"], function (require, exports) {
         var _this = this;
         var url = apiUrl + "/api/pixels";
         executeTask(function () { return __awaiter(_this, void 0, void 0, function () {
-            var e_3, _a, response, json, _b, _c, pixel, pixelData, isColorSet, i, color, material, _d;
+            var e_3, _a, response, json, _loop_3, _b, _c, pixel, _d;
             return __generator(this, function (_e) {
                 switch (_e.label) {
                     case 0:
@@ -435,29 +435,28 @@ define("game", ["require", "exports"], function (require, exports) {
                         ];
                     case 2:
                         json = _e.sent();
+                        _loop_3 = function (pixel) {
+                            var x = pixel.get(Pixel).x;
+                            var y = pixel.get(Pixel).y;
+                            var pix = json.find(function (p) { return p.x === x && p.y === y; });
+                            if (pix) {
+                                if (wallPixelColorMaterial[pix.color]) {
+                                    var material = wallPixelColorMaterial[pix.color];
+                                    pixel.set(material);
+                                }
+                                else {
+                                    log("pixel color" + pix.color + " not supported on " + x + " & " + y);
+                                }
+                            }
+                            else {
+                                pixel.set(wallPixelTransparentMaterial);
+                            }
+                        };
                         try {
                             //log(json)
                             for (_b = __values(pixels.entities), _c = _b.next(); !_c.done; _c = _b.next()) {
                                 pixel = _c.value;
-                                pixelData = pixel.get(Pixel);
-                                isColorSet = false;
-                                for (i = 0; i < json.length; i++) {
-                                    //log("x: " + json[i].x + " y: " + json[i].y )
-                                    if (json[i].x == pixelData.x &&
-                                        json[i].y == pixelData.y) {
-                                        color = json[i].color;
-                                        //workaround while there are unsupported colors
-                                        if (wallPixelColorMaterial[color]) {
-                                            material = wallPixelColorMaterial[color];
-                                            pixel.set(material);
-                                            isColorSet = true;
-                                            break;
-                                        }
-                                    }
-                                }
-                                if (!isColorSet) {
-                                    pixel.set(wallPixelTransparentMaterial);
-                                }
+                                _loop_3(pixel);
                             }
                         }
                         catch (e_3_1) { e_3 = { error: e_3_1 }; }
