@@ -336,19 +336,22 @@ define("game", ["require", "exports"], function (require, exports) {
             colorOption.get(Transform).scale = (swatchScale);
             colorOption.set(new Swatch(x, y));
             //log(wallPixelColorMaterial[i].albedoColor)
-            var col = swatchColors[i];
-            colorOption.set(wallPixelColorMaterial[col]);
+            if (i < swatchColors.length) {
+                var col = swatchColors[i];
+                colorOption.set(wallPixelColorMaterial[col]);
+            }
+            else {
+                colorOption.set(transparentMaterial);
+            }
             colorOption.set(new PlaneShape());
             colorOption.set(new OnClick(function (e) {
                 clickSwatch(colorOption);
             }));
             engine.addEntity(colorOption);
         };
-        for (var i = 0; i < swatchColors.length; i++) {
+        for (var i = 0; i < swatchColors.length + 1; i++) {
             _loop_2(i);
         }
-        // TODO align pixels well
-        // TODO add transparent color
     }
     InitiateWall();
     InitiatePalette();
@@ -358,7 +361,14 @@ define("game", ["require", "exports"], function (require, exports) {
         log("setting color to pixel");
         var x = pix.get(Pixel).x;
         var y = pix.get(Pixel).y;
-        var color = currentColor.albedoColor.toHexString();
+        var color;
+        if (currentColor.albedoColor) {
+            color = currentColor.albedoColor.toHexString();
+        }
+        else {
+            // transparent
+            color = null;
+        }
         var url = apiUrl + "/api/pixels/pixel";
         var method = "POST";
         var headers = { "Content-Type": "application/json" };

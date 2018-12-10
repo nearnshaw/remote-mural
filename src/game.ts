@@ -282,7 +282,7 @@ function InitiatePalette(){
   palette.set(wallPixelColorMaterial[paletteColor])
   engine.addEntity(palette)
   let rowY = 0
-  for (let i = 0; i< swatchColors.length; i++){
+  for (let i = 0; i< swatchColors.length + 1; i++){
     const x = ((i % 12) + 1) / 6 - 1.08;
     if (i % 12 === 0) {
       rowY -= 0.17;
@@ -296,8 +296,13 @@ function InitiatePalette(){
     colorOption.get(Transform).scale = (swatchScale)
     colorOption.set(new Swatch(x, y))
     //log(wallPixelColorMaterial[i].albedoColor)
-    let col = swatchColors[i]
-    colorOption.set(wallPixelColorMaterial[col])
+    if(i< swatchColors.length){
+      let col = swatchColors[i]
+      colorOption.set(wallPixelColorMaterial[col])
+    }else{
+      colorOption.set(transparentMaterial)
+    }
+    
     colorOption.set(new PlaneShape())
     colorOption.set(new OnClick(e=> {
       clickSwatch(colorOption)
@@ -306,8 +311,6 @@ function InitiatePalette(){
     engine.addEntity(colorOption)
 
   }
-  // TODO align pixels well
-  // TODO add transparent color
 }
 
 
@@ -320,7 +323,14 @@ function clickPixel(pix: Entity){
 
   let x = pix.get(Pixel).x
   let y = pix.get(Pixel).y
-  let color = currentColor.albedoColor.toHexString()
+  let color
+  if (currentColor.albedoColor){
+    color = currentColor.albedoColor.toHexString()
+  } else{
+    // transparent
+    color = null
+  }
+  
 
   let url = `${apiUrl}/api/pixels/pixel`
   let method = "POST";

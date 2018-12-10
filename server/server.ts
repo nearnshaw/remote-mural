@@ -87,23 +87,39 @@ pixelRouter.post("/pixel", bodyParser.json(), function(
   x = parseInt(x);
   y = parseInt(y);
 
-  if (typeof color !== "string" || validColorPattern.test(color) === false) {
-    const msg = `the color was not valid hex, color: ${color}`;
-    console.error(msg);
-    return res.status(400).json({ error: msg });
+  if(color){
+    if (typeof color !== "string" || validColorPattern.test(color) === false) {
+      const msg = `the color was not valid hex, color: ${color}`;
+      console.error(msg);
+      return res.status(400).json({ error: msg });
+    }
   }
 
   let pixel = pixels.find((pixel) => pixel.x === x && pixel.y === y
   )
-  if (pixel){
-    pixel.color = color       
-    res.status(200).json(pixel)
-    console.log(`changed color of existing pixel`)
+  if (pixel != null){
+    if(color){
+      // update pixel
+      pixel.color = color       
+      res.status(200).json(pixel)
+      console.log(`changed color of existing pixel`)
+    }else{
+      // remove pixel
+      for( var i = 0; i < pixels.length-1; i++){ 
+        if ( pixels[i].x === x && pixels[i].y === y) {
+          pixels.splice(i, 1); 
+        }
+      }
+      console.log("removed a pixel")
+
+    }
+    
   }
   else {
+    // new pixel
     let newPixel: IPixel = {x: x, y: y, color: color}
     pixels.push(newPixel)
-    res.status(200).json(pixel)
+    res.status(200).json(newPixel)
     console.log("new pixel: " + x, " ", y, " color: " , color)
   }
 
