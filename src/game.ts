@@ -343,8 +343,6 @@ function clickPixel(pix: Entity){
         headers: headers,
         method: method,
         body: body})
-      //let json = await response.json()
-      
     } catch {
       log("error sending pixel change")
     }
@@ -391,7 +389,7 @@ function getFromServer() {
         let y = pixel.get(Pixel).y
         let pix = json.find((p)=> p.x === x && p.y === y )
 
-        if(pix){
+        if(pix && pix.color){
           if (wallPixelColorMaterial[pix.color]){
             let material = wallPixelColorMaterial[pix.color]
             pixel.set(material)

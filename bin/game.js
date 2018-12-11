@@ -383,9 +383,7 @@ define("game", ["require", "exports"], function (require, exports) {
                                 headers: headers,
                                 method: method,
                                 body: body
-                            })
-                            //let json = await response.json()
-                        ];
+                            })];
                     case 1:
                         response = _b.sent();
                         return [3 /*break*/, 3];
@@ -449,7 +447,7 @@ define("game", ["require", "exports"], function (require, exports) {
                             var x = pixel.get(Pixel).x;
                             var y = pixel.get(Pixel).y;
                             var pix = json.find(function (p) { return p.x === x && p.y === y; });
-                            if (pix) {
+                            if (pix && pix.color) {
                                 if (wallPixelColorMaterial[pix.color]) {
                                     var material = wallPixelColorMaterial[pix.color];
                                     pixel.set(material);
