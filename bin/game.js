@@ -179,78 +179,78 @@ define("game", ["require", "exports"], function (require, exports) {
     var paletteColor = "#666666";
     var swatchColors = [
         blankColor,
-        "#FDBEBF",
-        "#F7BD7F",
-        "#F39D3C",
-        "#EC7A08",
-        "#B35C00",
-        "#773D00",
+        //"#FDBEBF",
+        //"#F7BD7F",
+        //"#F39D3C",
+        //"#EC7A08",
+        //"#B35C00",
+        //"#773D00",
         // "#3b1f00",
-        "#FBEABC",
+        //"#FBEABC",
         "#F9D67A",
-        "#F5C12E",
-        "#F0AB00",
-        "#B58100",
+        //"#F5C12E",
+        //"#F0AB00",
+        //"#B58100",
         "#795600",
         // "#3d2c00",
-        "#E4F5BC",
+        //"#E4F5BC",
         "#C8EB79",
-        "#ACE12E",
+        //"#ACE12E",
         "#92D400",
-        // "#6ca100",
-        // "#486b00",
+        //"#6CA100",
+        "#486B00",
         // // "#253600",
-        // "#cfe7cd",
-        // "#9ecf99",
-        // "#6ec664",
-        // "#3f9c35",
-        // "#2d7623",
-        // "#1e4f18",
+        //"#CFE7CD",
+        //"#9ECF99",
+        "#6EC664",
+        //"#3F9C35",
+        "#2D7623",
+        "#1E4F18",
         // // "#0f280d",
-        // "#bedee1",
-        // "#7dbdc3",
-        // "#3a9ca6",
-        // "#007a87",
-        // "#005c66",
-        // "#003d44",
+        //"#BEDEE1",
+        //"#7DBDC3",
+        //"#3A9CA6",
+        "#007A87",
+        //"#005C66",
+        "#003D44",
         // // "#001f22",
-        // "#beedf9",
-        // "#7cdbf3",
-        // "#35caed",
-        // "#00b9e4",
-        // "#008bad",
-        // "#005c73",
+        //"#BEEDF9",
+        //"#7CDBF3",
+        //"#35CAED",
+        "#00B9E4",
+        //"#008BAD",
+        //"#005C73",
         // // "#002d39",
-        // "#def3ff",
-        // "#bee1f4",
-        // "#7dc3e8",
-        // "#39a5dc",
-        // "#0088ce",
-        // "#00659c",
+        //"#DEF3FF",
+        //"#BEE1f4",
+        //"#7DC3E8",
+        //"#39A5DC",
+        "#0088CE",
+        //"#00659C",
         // // "#004368",
         // // "#002235",
-        // "#c7bfff",
-        // "#a18fff",
-        // "#8461f7",
-        // "#703fec",
-        // "#582fc0",
-        // "#40199a",
+        //"#C7BFFF",
+        //"#A18fff",
+        //"#8461f7",
+        "#703FEC",
+        //"#582FC0",
+        "#40199A",
         // // "#1f0066",
         // "#fafafa",
         // // "#f5f5f5",
         // "#ededed",
         // // "#d1d1d1",
-        // "#bbbbbb",
+        //"#BBBBBB",
         // // "#8b8d8f",
-        // "#72767b",
+        //"#72767B",
         // // "#4d5258",
-        // "#393f44",
+        //"#393F44",
         // // "#292e34",
-        // "#030303",
-        // "#cc0000",
-        // "#a30000",
-        // "#8b0000",
-        // "#470000",
+        "#030303",
+        // "#CC0000",
+        "#A30000",
+        //"#8B0000",
+        //"#470000",
         // "#2c0000",
         paletteColor
     ];
@@ -336,12 +336,12 @@ define("game", ["require", "exports"], function (require, exports) {
             colorOption.get(Transform).scale = (swatchScale);
             colorOption.set(new Swatch(x, y));
             //log(wallPixelColorMaterial[i].albedoColor)
-            if (i < swatchColors.length) {
-                var col = swatchColors[i];
-                colorOption.set(wallPixelColorMaterial[col]);
+            if (i == 0) {
+                colorOption.set(transparentMaterial);
             }
             else {
-                colorOption.set(transparentMaterial);
+                var col = swatchColors[i];
+                colorOption.set(wallPixelColorMaterial[col]);
             }
             colorOption.set(new PlaneShape());
             colorOption.set(new OnClick(function (e) {
@@ -349,7 +349,7 @@ define("game", ["require", "exports"], function (require, exports) {
             }));
             engine.addEntity(colorOption);
         };
-        for (var i = 0; i < swatchColors.length + 1; i++) {
+        for (var i = 0; i < swatchColors.length; i++) {
             _loop_2(i);
         }
     }
