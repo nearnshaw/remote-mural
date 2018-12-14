@@ -271,7 +271,7 @@ function InitiatePalette(){
   let paletteContainer = new Entity()
   paletteContainer.set(new Transform())
   paletteContainer.get(Transform).position.set(8.5,1,3)
-  paletteContainer.get(Transform).rotation.eulerAngles = new Vector3(30,50,0)
+  paletteContainer.get(Transform).rotation.setEuler(30,50,0)
   engine.addEntity(paletteContainer)
 
   let palette = new Entity()
