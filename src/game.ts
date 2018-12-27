@@ -250,9 +250,10 @@ function InitiateWall(){
       const yPos = (wallHeight / wallBlocksY) * yIndex + wallOffsetY;
       
       let pix = new Entity()
-      pix.set(new Transform())
-      pix.get(Transform).position.set(xPos, yPos, wallPixelZ)
-      pix.get(Transform).scale = (wallPixelScale)
+      pix.set(new Transform({
+        position: new Vector3(xPos, yPos, wallPixelZ),
+        scale: wallPixelScale
+      }))
       pix.set(new Pixel(xIndex, yIndex))
 
       pix.set(wallPixelTransparentMaterial)
@@ -269,15 +270,17 @@ function InitiateWall(){
 
 function InitiatePalette(){
   let paletteContainer = new Entity()
-  paletteContainer.set(new Transform())
-  paletteContainer.get(Transform).position.set(8.5,1,3)
-  paletteContainer.get(Transform).rotation.setEuler(30,50,0)
+  paletteContainer.set(new Transform({
+    position: new Vector3(8.5, 1, 3),
+    rotation: Quaternion.Euler(30, 50, 0)
+  }))
   engine.addEntity(paletteContainer)
 
   let palette = new Entity()
   palette.setParent(paletteContainer)
-  palette.set(new Transform())
-  palette.get(Transform).scale.set(2.2,1,1)
+  palette.set(new Transform({
+    scale: new Vector3(2.2, 1, 1)
+  }))
   palette.set(new PlaneShape())
   palette.set(wallPixelColorMaterial[paletteColor])
   engine.addEntity(palette)
@@ -291,9 +294,10 @@ function InitiatePalette(){
 
     let colorOption = new Entity()
     colorOption.setParent(paletteContainer)
-    colorOption.set(new Transform())
-    colorOption.get(Transform).position.set(x, y, swatchZUnselected)
-    colorOption.get(Transform).scale = (swatchScale)
+    colorOption.set(new Transform({
+      position: new Vector3(x, y, swatchZUnselected),
+      scale: swatchScale
+    }))
     colorOption.set(new Swatch(x, y))
     //log(wallPixelColorMaterial[i].albedoColor)
     if(i == 0){
