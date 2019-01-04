@@ -26,8 +26,6 @@ export interface IPixel {
 
 let pixels: IPixel[] = []
 
-//const Pixel = mongoose.model("Pixel", pixelSchema);
-
 //
 // get all pixels
 // GET /api/pixels/
@@ -67,7 +65,7 @@ pixelRouter.get("/pixel", function(
 });
 
 //
-// post a new pixel which does not exist in the db yet
+// post a new pixel which does not exist
 // or update a pixel that already exists
 // POST /api/pixels/pixel
 //
@@ -138,11 +136,3 @@ expressApp.use("/api/pixels", pixelRouter);
 //
 expressApp.listen(port, host);
 console.log(`listening http://${host}:${port}`);
-
-// //
-// // connect to mongodb server
-// //
-// mongoose.connect(
-//   "mongodb://127.0.0.1:27017/sample-sync-rest",
-//   { useNewUrlParser: true }
-// );
